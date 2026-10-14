@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Bug Hunter - Automated Root-Cause & Patch Generator</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen p-8">
+  <div class="max-w-6xl mx-auto space-y-6">
+    <header class="flex items-center justify-between border-b border-slate-800 pb-4">
+      <div>
+        <h1 class="text-3xl font-bold tracking-tight text-indigo-400">⚡ Bug Hunter</h1>
+        <p class="text-slate-400 text-sm">Automated stack trace triage and unified patch generation</p>
+      </div>
+      <span class="bg-indigo-950 text-indigo-300 border border-indigo-700 text-xs px-3 py-1 rounded-full">v0.1.0 Beta</span>
+    </header>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <!-- Input Panel -->
+      <div class="space-y-4">
+        <div>
+          <label class="block text-sm font-semibold mb-1 text-slate-300">Stack Trace / Runtime Error</label>
+          <textarea id="stackTrace" rows="8" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 font-mono text-xs focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="Traceback (most recent call last):&#10;  File &quot;main.py&quot;, line 14, in calculate_average&#10;ZeroDivisionError: division by zero"></textarea>
+        </div>
+
+        <div>
+          <label class="block text-sm font-semibold mb-1 text-slate-300">Source Code Context</label>
+          <textarea id="sourceCode" rows="12" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 font-mono text-xs focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="def calculate_average(items):&#10;    total = sum(items)&#10;    return total / len(items)"></textarea>
+        </div>
+
+        <button onclick="analyzeBug()" id="submitBtn" class="w-full py-3 bg-indigo-600 hover:bg-indigo-500 text-white font-medium rounded-lg transition-colors">
+          Detect & Generate Patch
+        </button>
+      </div>
+
+      <!-- Output Panel -->
+      <div class="bg-slate-900 border border-slate-800 rounded-lg p-5 flex flex-col space-y-4">
+        <h2 class="text-lg font-semibold text-slate-200">Analysis & Proposed Patch</h2>
+        
+        <div id="outputContainer" class="flex-1 space-y-4 text-sm overflow-y-auto">
+          <p class="text-slate-500 italic">Submit a stack trace and source code to see automated triage results.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    async function analyzeBug() {
+      const btn = document.getElementById('submitBtn') || document.getElementById('btn');
+      const out = document.getElementById('outputContainer') || document.getElementById('output');
+      const stack = document.getElementById('stackTrace').value;
+      const code = document.getElementById('sourceCode').value;
+
+      if (!stack || !code) return alert("Please fill in both fields");
+
+      btn.disabled = true;
+      btn.innerText = "Analyzing...";
+      out.innerHTML = `<span class="text-indigo-400 animate-pulse">Running root-cause diagnosis...</span>`;
+
+      try {
+        const res = await fetch("http://127.0.0.1:8000/api/analyze-bug", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ stack_trace: stack, source_code: code, runtime_language: "python" })
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) {
+          throw new Error(data.detail || JSON.stringify(data));
+        }
+
+        const parsed = typeof data.analysis === 'string' ? JSON.parse(data.analysis) : data.analysis;
+
+        out.innerHTML = `
+          <div class="p-3 bg-slate-950 border border-slate-800 rounded">
+            <span class="text-rose-400 font-bold uppercase text-xs">Root Cause</span>
+            <p class="text-slate-300 mt-1">${parsed.root_cause}</p>
+          </div>
+          <div>
+            <span class="text-emerald-400 font-bold uppercase text-xs">Git Patch</span>
+            <pre class="bg-slate-950 p-2 mt-1 rounded text-emerald-300 text-xs font-mono overflow-x-auto">${parsed.diff_patch}</pre>
+          </div>
+          <div>
+            <span class="text-sky-400 font-bold uppercase text-xs">Unit Test</span>
+            <pre class="bg-slate-950 p-2 mt-1 rounded text-sky-200 text-xs font-mono overflow-x-auto">${parsed.unit_test}</pre>
+          </div>
+        `;
+      } catch (e) {
+        out.innerHTML = `<p class="text-rose-400 font-mono text-xs">Backend error: ${e.message}</p>`;
+      } finally {
+        btn.disabled = false;
+        btn.innerText = "Detect & Generate Patch";
+      }
+    }
+  </script>
+</body>
+</html>
