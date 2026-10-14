@@ -1,0 +1,73 @@
+====================================================================
+BUG HUNTER - COMPLETE GITHUB & DEVFOLIO SUBMISSION GUIDE
+====================================================================
+
+--------------------------------------------------------------------
+1. HOW TO RUN LOCALLY ON YOUR LAPTOP (FOR TESTING / VIDEO DEMO)
+--------------------------------------------------------------------
+Because your API key was safely removed from `main.py` using `os.getenv("GEMINI_API_KEY")`, run these two commands in your VS Code PowerShell terminal whenever you want to start the backend:
+
+$env:GEMINI_API_KEY="paste_your_actual_api_key_here"
+python main.py
+
+Then double-click `index.html` in your folder to open the UI.
+
+(Optional: If you want `http://127.0.0.1:8000` to open the UI directly inside VS Code's browser instead of showing `{"detail":"Not Found"}`, add this to `main.py`):
+from fastapi.responses import FileResponse
+
+@app.get("/")
+async def serve_ui():
+    return FileResponse("index.html")
+
+
+--------------------------------------------------------------------
+2. REQUIREMENTS.TXT CONTENT
+--------------------------------------------------------------------
+fastapi
+uvicorn
+pydantic
+google-genai
+
+
+--------------------------------------------------------------------
+3. DEVFOLIO SHORT FIELDS (UNDER 50 CHARACTERS)
+--------------------------------------------------------------------
+Tagline Options (Pick One):
+- AI-powered error parser & automated patch engine (49 chars)
+- Automated runtime error triage & patch generator (47 chars)
+- Automated root-cause analysis & code patches (43 chars)
+
+Changelog / Commit Message Field Options (Pick One):
+- Initial prototype: triage engine & patch generator (49 chars)
+- Added FastAPI backend and Gemini triage UI (42 chars)
+- Initial release of Bug Hunter prototype (39 chars)
+
+
+--------------------------------------------------------------------
+4. VIDEO DEMO SCRIPT (60 - 90 SECONDS)
+--------------------------------------------------------------------
+[0:00 - 0:15 | The Hook & Problem]
+- Show: The clean Bug Hunter interface in your browser.
+- Say: "Hi, this is Bug Hunter—an automated runtime error triage engine and patch generator. Developers lose hours deciphering stack traces and writing regression tests. Bug Hunter automates that workflow in seconds."
+
+[0:15 - 0:35 | Live Action]
+- Show: Paste the ZeroDivisionError stack trace into the top box and the calculate_average Python function into the bottom box. Click 'Detect & Generate Patch'.
+- Say: "Here, we paste a raw Python ZeroDivisionError stack trace and the failing function. When we click Detect & Generate Patch, our FastAPI backend parses the failure location and queries Google Gemini with automatic model fallback for high availability."
+
+[0:35 - 0:55 | The Result]
+- Show: Highlight the three output cards as they appear on the right (Root Cause, Git Patch, and Unit Test).
+- Say: "Within seconds, Bug Hunter identifies the exact root cause—an empty list—generates a clean, unified Git diff patch adding an empty check, and writes a ready-to-run unittest suite so the bug never happens again."
+
+[0:55 - 1:10 | Code & Architecture]
+- Show: Briefly switch to your VS Code window showing `main.py` and the terminal returning `200 OK`.
+- Say: "Under the hood, it runs on FastAPI and the Google GenAI SDK with automated multi-model fallback to prevent 503 downtime. Thanks for watching!"
+
+
+--------------------------------------------------------------------
+5. HOW TO UPDATE README.MD ON GITHUB (WEB BROWSER METHOD)
+--------------------------------------------------------------------
+1. Open https://github.com/pawartarun3228/bug-hunter
+2. Click 'Add file' -> 'Create new file' (or click README.md and click the Pencil icon if it already exists).
+3. Name the file `README.md`.
+4. Copy and paste the entire contents from the `README.md` document generated alongside this file.
+5. Click the green 'Commit changes...' button at the top right.
